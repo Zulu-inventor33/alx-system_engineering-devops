@@ -1,2 +1,2 @@
 #!/bin/bash
-chown -Rh vincent:staff .
+find . -type d -exec chmod a+x {} +
