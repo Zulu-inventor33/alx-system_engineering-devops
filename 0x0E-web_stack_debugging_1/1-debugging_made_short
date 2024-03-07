@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#We use the sed command to replace port 8080 with port 80
+sed -i 's/8080/80/g' /etc/nginx/sites-enabled/default
+service nginx restart
+pkill -o nginx

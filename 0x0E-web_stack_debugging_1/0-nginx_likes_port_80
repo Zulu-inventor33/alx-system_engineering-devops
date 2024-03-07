@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#I solved it by deleting the current /etc/nginx/sites-enabled
+#Replacing it with /etc/nginx/sites-availabe/default symbolic link
+#Note ln denotes link -s specifies that its symbolic
+#The -f formats the existing and replaces it with current
+sudo ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+sudo service nginx restart
