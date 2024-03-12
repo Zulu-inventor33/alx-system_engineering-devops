@@ -16,8 +16,8 @@ frontend  mutea-frontend
         default_backend mutea-backend
 backend mutea-backend
         balance roundrobin
-        server 331019-web-01:80 check
-        server 331019-web-02:80 check
+        server 331019-web-01 54.90.54.192:80 check
+        server 331019-web-02 18.204.14.69:80 check
 "
 echo "$server_config" | sudo tee -a /etc/haproxy/haproxy.cfg
 
