@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Consuming my first REST API for todo lists of employees and storing the data in a CSV file"""
+"""a REST API for todo lists of employees"""
 
 import requests
 import sys
