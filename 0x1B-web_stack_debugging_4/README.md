@@ -1,0 +1,4 @@
+# Web Stack Debugging 4
+
+This project focuses on advanced web stack debugging tasks aimed at improving server performance and reliability. The first task, **Sky is the limit, let's bring that limit higher**, involves diagnosing and fixing an Nginx web server under heavy load using ApacheBench for benchmarking. Initially, the server had a significant number of failed requests, but after applying the Puppet manifest `0-the_sky_is_the_limit_not.pp`, the configuration was optimized, resulting in zero failed requests. The second task, **User limit**, addresses an issue where the `holberton` user was unable to log in and open files due to OS limitations. This was resolved by adjusting the OS configuration through the `1-user_limit.pp` Puppet manifest, allowing the user to log in and operate normally.
+
