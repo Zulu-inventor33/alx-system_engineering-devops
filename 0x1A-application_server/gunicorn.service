@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# Define variables
+SERVICE_FILE="/etc/systemd/system/gunicorn.service"
+WORKING_DIR="./AirBnB_clone_v4"
+USER="ubuntu"
+GROUP="ubuntu"
+GUNICORN_EXEC="/usr/bin/gunicorn"
+LOG_DIR="/tmp"
+LOG_ACCESS="${LOG_DIR}/airbnb-access.log"
+LOG_ERROR="${LOG_DIR}/airbnb-error.log"
+BIND_PORT="5003"
+APP_MODULE="web_dynamic.2-hbnb:app"
+
+# Create the systemd service file
+echo "Creating systemd service file at $SERVICE_FILE"
+
+sudo tee $SERVICE_FILE > /dev/null <<EOL
+[Unit]
+Description=Gunicorn instance to serve AirBnB_clone_v4
+After=network.target
+
+[Service]
+User=$USER
+Group=$GROUP
+WorkingDirectory=$WORKING_DIR
+ExecStart=$GUNICORN_EXEC --workers 3 --bind 0.0.0.0:$BIND_PORT --access-logfile $LOG_ACCESS --error-logfile $LOG_ERROR $APP_MODULE
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOL
+
+# Reload systemd to recognize the new service
+echo "Reloading systemd to recognize the new service"
+sudo systemctl daemon-reload
+
+# Enable the Gunicorn service to start on boot
+echo "Enabling Gunicorn service to start on boot"
+sudo systemctl enable gunicorn
+
+# Start the Gunicorn service
+echo "Starting Gunicorn service"
+sudo systemctl start gunicorn
+
+# Check the status of the service
+echo "Checking the status of Gunicorn service"
+sudo systemctl status gunicorn
+
+# Display the log files to verify
+echo "Displaying the last 10 lines of the access and error logs"
+tail -n 10 $LOG_ACCESS
+tail -n 10 $LOG_ERROR
+

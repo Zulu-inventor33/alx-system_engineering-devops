@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Variables
+SERVICE_NAME="gunicorn"
+SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
+GUNICORN_CMD="/home/ubuntu/AirBnB_clone_v4/bin/gunicorn"
+GUNICORN_APP="web_dynamic.2-hbnb:app"
+PORT=5003
+WORKERS=3
+LOG_DIR="/tmp"
+LOG_ACCESS="${LOG_DIR}/airbnb-access.log"
+LOG_ERROR="${LOG_DIR}/airbnb-error.log"
+
+# 1. Create the systemd service file
+echo "Creating systemd service file..."
+cat <<EOF | sudo tee $SERVICE_PATH
+[Unit]
+Description=Gunicorn instance to serve AirBnB_clone_v4
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/AirBnB_clone_v4
+ExecStart=$GUNICORN_CMD --bind 0.0.0.0:$PORT --workers $WORKERS $GUNICORN_APP --access-logfile $LOG_ACCESS --error-logfile $LOG_ERROR
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 2. Reload systemd to recognize the new service and start the service
+echo "Reloading systemd and starting the service..."
+sudo systemctl daemon-reload
+sudo systemctl start $SERVICE_NAME
+sudo systemctl enable $SERVICE_NAME
+
+# 3. Create a script to gracefully reload Gunicorn
+echo "Creating reload script..."
+cat <<'EOF' | sudo tee /usr/local/bin/reload_gunicorn_no_downtime.sh
+#!/bin/bash
+
+# Function to find the Gunicorn master process ID
+find_master_pid() {
+    ps aux | grep "gunicorn --bind 0.0.0.0:5003" | grep -v grep | awk '{print $2}' | head -n 1
+}
+
+# Gracefully reload Gunicorn
+reload_gunicorn() {
+    MASTER_PID=$(find_master_pid)
+    if [ -n "$MASTER_PID" ]; then
+        echo "Sending HUP signal to master process (PID: $MASTER_PID)"
+        kill -HUP $MASTER_PID
+    else
+        echo "Gunicorn master process not found"
+        exit 1
+    fi
+}
+
+# Perform the reload
+reload_gunicorn
+
+# Verify the reload
+echo "Verifying that Gunicorn has been reloaded"
+ps auxf | grep gunicorn | grep -v grep
+EOF
+
+# Make the reload script executable
+sudo chmod +x /usr/local/bin/reload_gunicorn_no_downtime.sh
+
+echo "Setup complete. You can reload Gunicorn gracefully using:"
+echo "sudo /usr/local/bin/reload_gunicorn_no_downtime.sh"
+
